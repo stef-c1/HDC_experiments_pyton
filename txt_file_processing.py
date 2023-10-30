@@ -35,15 +35,21 @@ def processing_txt_file(txt_file_string):
 
 
 
+lang = {'pl':'pol','nl':'nld','it':'ita','fr':'fra','fi':'fin','et':'est','es':'spa','en':'eng','el':'ell','de':'deu','da':'dan','cs':'ces','bg':'bul','hu':'hun','lt':'lit','lv':'lav','pt':'por','ro':'ron','sk':'slk','sl':'slv','sv':'swe'}
 
-lang = ['pl','nl','it','fr','fi','et','es','en','el','de','da','cs']
 for l in lang:
-    for i in range(1,1001):
-        file_raw = open("Language txt files\\testing_texts\\"+l+"_"+str(i)+"_p"+".txt", "r")
-        raw_content = file_raw.read()
-        file_raw.close()
+    for i in range(1,1000):
+        # file = open("Language txt files\\testing_texts\\"+l+"_"+str(i)+"_p"+".txt", "r")
+        # raw_content = file.read()
+        # file.close()
+        # processed_content = processing_txt_file(raw_content)
+        # file = open("Language txt files\\testing_texts\\"+l+"_"+str(i)+"_p"+".txt", "w")
+        # file.write(processed_content)
+        # file.close()
+        file = open("Language txt files\\"+lang[l]+".txt", "r")
+        raw_content = file.read()
+        file.close()
         processed_content = processing_txt_file(raw_content)
-        file_processed = open("Language txt files\\spanish.txt", "w")
-        file_processed.write(processed_content)
-        file_processed.close()
-
+        file = open("Language txt files\\"+lang[l]+".txt", "w")
+        file.write(processed_content)
+        file.close()
