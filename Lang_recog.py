@@ -5,8 +5,8 @@ import math
 D = 1000
 N = 3
 p = 0.5 
-p_sparse = 0.02
-max_p_sparse_bundle = 0.80
+p_sparse = 0.01
+max_p_sparse_bundle = 0.50
 hash_bind_list_of_tupples = []
 
 def u_gen_rand_hv(D):
@@ -185,7 +185,7 @@ def build_IM_sparse(D):
 
 
 def build_language_AM(D, N, IM):
-    languages = ['afrikaans','czech','danish','dutch','english','estonian','finnish','french','german','greek','italian','polish','spanish']
+    languages = ['bul','ces','dan','deu','ell','eng','est','fin','fra','hun','ita','lav','lit','nld','pol','por','ron','slk','slv','spa','swe']
     language_AM = {}
     for lang in languages:
         file = open("Language txt files\\"+ lang +".txt", "r")
@@ -195,12 +195,12 @@ def build_language_AM(D, N, IM):
     return language_AM
 
 def build_language_AM_sparse(D, N, IM):
-    languages = ['afrikaans','czech','danish','dutch','english','estonian','finnish','french','german','greek','italian','polish','spanish']
+    languages = ['bul','ces','dan','deu','ell','eng','est','fin','fra','hun','ita','lav','lit','nld','pol','por','ron','slk','slv','spa','swe']
     language_AM = {}
     for lang in languages:
         file = open("Language txt files\\"+ lang +".txt", "r")
         content = file.read()
-        hv = make_hv_from_txt_sparse(content, D, N, IM)
+        hv = make_hv_from_txt_sparse(content[1:15000], D, N, IM)
         language_AM[lang] = hv
     return language_AM
 
@@ -297,12 +297,13 @@ def test_language_recognition(IM, AM, D, N,tests):
 
 def test_language_recognition_sparse(IM, AM, D, N,tests):
    score = 0
-   repeatings = 3
+   repeatings = 1
    print_flag = True
    for test in tests:
       file = open("Language txt files\\testing_texts\\"+test+".txt", "r")
       content = file.read()
       for i in range(repeatings):
+        print(test)
         test_hv = make_hv_from_txt_sparse(content, D, N, IM)
         (found_language, similarity) = similarity_search_sparse(test_hv, AM, D)
         if found_language == tests[test]:
@@ -314,21 +315,29 @@ def test_language_recognition_sparse(IM, AM, D, N,tests):
                 print("WRONG prediction! Found language: " + found_language + " similarity_score: " + str(similarity))
    test_len = len(tests)*repeatings
    print("Final accuracy is: %f" % (score/test_len*100))
+   return score/test_len*100
 
 
 
 random_perm_list = random_permutation_list(11) #for p_sparse = 0.01, N = 3 (as we bind N letters together, N from N-gram)
 
-lang = {'pl':'polish','nl':'dutch','it':'italian','fr':'french','fi':'finnish','et':'estonian','es':'spanish','en':'english','el':'greek','de':'german','da':'danish','cs':'czech'}
+lang = {'pl':'pol','nl':'nld','it':'ita','fr':'fra','fi':'fin','et':'est','es':'spa','en':'eng','el':'ell','de':'deu','da':'dan','cs':'ces','bg':'bul','hu':'hun','lt':'lit','lv':'lav','pt':'por','ro':'ron','sk':'slk','sl':'slv','sv':'swe'}
 tests = {}
 for l in lang:
-    for i in range(1,250):
+    for i in range(2,300): #max range(2,1000)
         tests[l+"_"+str(i)+"_p"] = lang[l]
 
 
-IM = build_IM_sparse(D)
-AM = build_language_AM_sparse(D,N,IM)
-test_language_recognition_sparse(IM,AM,D,N,tests)
+mean_list = []
+i = 0
+while (i < 10):
+  IM = build_IM_sparse(D)
+  AM = build_language_AM_sparse(D,N,IM)
+  mean_list.append(test_language_recognition_sparse(IM,AM,D,N,tests))
+  i += 1
+mean = sum(mean_list)/len(mean_list)
+print("Mean: " + str(mean) + "%")
+
 
 #sparse got 75% (for improved functions) on the first 50 tests and with 10,000 char of the learning sets (hash table binding)
 #sparse got 78% with segmented shifting (D=1000, p_sparse=0.05)
@@ -338,4 +347,4 @@ test_language_recognition_sparse(IM,AM,D,N,tests)
 
 
 ####Getting Accuracy as in Paper####
-#Test: segmented shift binding, full training set, first 250 tests, p_sparse 0.02, max_p_sparse_bundle 0.80 -> 
+#Test: segmented shift binding, full training set, first 250 tests, p_sparse 0.01, max_p_sparse_bundle 0.50 -> 87.48% (mean after 10 runs)
